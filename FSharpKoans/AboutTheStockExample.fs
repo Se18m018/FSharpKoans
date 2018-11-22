@@ -27,6 +27,7 @@ open FSharpKoans.Core
 //---------------------------------------------------------------
 [<Koan(Sort = 15)>]
 module ``about the stock example`` =
+    open System.Globalization
     
     let stockData =
         [ "Date,Open,High,Low,Close,Volume,Adj Close";
@@ -60,6 +61,30 @@ module ``about the stock example`` =
 
     [<Koan>]
     let YouGotTheAnswerCorrect() =
-        let result =  __
+        let splitCommas (x:string) =
+            x.Split([|','|])
+            
+        let columnNames = splitCommas stockData.Head
+        
+        let columnIndex colNames = 
+            columnNames
+            |> Array.findIndex (fun x -> x = colNames)
+        
+        let idxDate = columnIndex "Date"
+        let idxOpen = columnIndex "Open"
+        let idxClose = columnIndex "Close"
+        
+        let getPriceDiff (dateData: string []) =
+            dateData.[idxDate], abs (System.Double.Parse dateData.[idxClose]) - (System.Double.Parse dateData.[idxOpen]) 
+           
+        let getDateWithGreatestDiff(data: string list) = 
+            data.Tail
+            |> Seq.ofList
+            |> Seq.map splitCommas
+            |> Seq.map getPriceDiff
+            |> Seq.maxBy snd
+            |> fst
+    
+        let result =  getDateWithGreatestDiff stockData
         
         AssertEquality "2012-03-13" result
